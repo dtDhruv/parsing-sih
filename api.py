@@ -25,7 +25,6 @@ async def root(username: str):
 @app.post("/api/v1/twitter/usertweets")
 async def root(tweet_input: TweetParams):
     user_tweets = await get_user_tweets(tweet_input.username, "user", tweet_input.number_of_tweets)
-    print(user_tweets)
     return {"usertweets": user_tweets}
 
 def main():
