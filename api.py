@@ -2,12 +2,21 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.config.logger import log
 from src.config.env import settings
 from src.api.twitter import get_twitter_user_details, get_user_tweets, create_twitter_user_pdf
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Adjust this to your frontend's origin
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class TweetParams(BaseModel):
     username: str = ""
@@ -37,7 +46,7 @@ async def root(tweet_input: TweetParams):
     user_details, user_tweets = await asyncio.gather(*coros)
     print(user_details)
     pdf_name = create_twitter_user_pdf({"userdetails":user_details}, {"usertweets": user_tweets}, tweet_input.number_of_tweets)
-    return {"usertweets": pdf_name}
+    return {"user_reports": pdf_name}
 
 def main():
     uvicorn.run(

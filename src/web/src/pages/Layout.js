@@ -1,24 +1,38 @@
-import { Outlet , Link } from "react-router-dom";
+import React from 'react';
+import { Outlet, Link } from 'react-router-dom';
+import { Navbar, Nav } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Layout.css'; // Import the CSS file
 
-const Layout = () =>
-    {
-        // const myList = [{names:"Home"},{names:"Blogs"},{names:"Contact"}];
-        // const myList = ["Home","Blogs","Contact"]
-        // const myListLink = ["/","/blogs","/contact"]
-        const LinksLayout = [
-            {link:"/",pageName:"UserDetails"},
-            {link:"/UserTweet",pageName:"UserTweets"},
-            {link:"/contact",pageName:"About Us"}    
-        ];
-        return(
-            <>
-                <nav>
-                    <ul>{LinksLayout.map((item,index)=><li key={index}><Link to={item.link}>{item.pageName}</Link></li>)}</ul>
-                </nav>
-                <hr></hr>
-                <Outlet/> {/*Renders the current path selected*/}
-            </>
-        );
-    }
+const Layout = () => {
+    const LinksLayout = [
+        { link: "/", pageName: "UserDetails" },
+        { link: "/UserTweet", pageName: "UserTweets" },
+        { link: "/GenerateReport", pageName: "Generate Report" },
+        { link: "/contact", pageName: "About Us" },
+    ];
 
-export default Layout;      
+    return (
+        <>
+            <Navbar bg="light" expand="lg">
+                <Navbar.Brand href="#home" style={{ color: 'skyblue' }}>TwitterScraper</Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="mr-auto">
+                        {LinksLayout.map((item, index) => (
+                            <Nav.Link as={Link} to={item.link} key={index}>
+                                {item.pageName}
+                            </Nav.Link>
+                        ))}
+                    </Nav>
+                </Navbar.Collapse>
+            </Navbar>
+            <hr className="dynamic-hr" />
+            <div className="outlet-container">
+                <Outlet /> {/* Renders the current path selected */}
+            </div>
+        </>
+    );
+}
+
+export default Layout;

@@ -49,8 +49,8 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className="App" >
+      <header className="App-header"style={{backgroundImage: `url(${process.env.PUBLIC_URL + '/bg.jpg'})` }}>
         <form onSubmit={handleSubmit} className="form-container">
           <h2 className="form-title">Twitter Parser</h2>
           <label className="form-label">

@@ -8,6 +8,7 @@ function Contact() {
     { rollNumber: 'A024', name: 'Ira Malik' },
     { rollNumber: 'A030', name: 'Kayan Irani' },
     { rollNumber: 'A034', name: 'Ksama Arora' },
+    { rollNumber: 'A072', name: 'Jay Pandya'}
   ];
 
   const branch = 'BTech IT Year 3';
