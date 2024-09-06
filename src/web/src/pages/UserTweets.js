@@ -4,6 +4,7 @@ const UserTweets = () => {
   const [userName, setUserName] = useState('');
   const [numberOfTweets, setNumberOfTweets] = useState('');
   const [resultcomp, setResultComp] = useState(null);
+  const [tweets, setTweets] = useState([]); // State for individual tweets
 
   const postData = async () => {
     const url = 'http://127.0.0.1:8001/api/v1/twitter/usertweets';
@@ -24,6 +25,18 @@ const UserTweets = () => {
       const result = await response.json();
       console.log(result);
       setResultComp(JSON.stringify(result));
+
+      // Parse and store the tweets
+      const parsedTweets = JSON.parse(result.usertweets);
+      const tweetData = Object.keys(parsedTweets.twitter_link).map((index) => ({
+        twitterLink: parsedTweets.twitter_link[index],
+        text: parsedTweets.text[index],
+        date: parsedTweets.date[index],
+        likes: parsedTweets.likes[index],
+        comments: parsedTweets.comments[index],
+      }));
+
+      setTweets(tweetData); // Save parsed tweets to state
     } catch (error) {
       console.error('Error:', error);
     }
@@ -34,8 +47,17 @@ const UserTweets = () => {
     postData();
   };
 
+  const check = () => {
+    console.log("Result comp:");
+    console.log(resultcomp);
+    const parsedResult = JSON.parse(resultcomp);
+    console.log("parsed result:");
+    console.log(parsedResult); // Check the structure
+    console.log(parsedResult.comments["0"][1]); // Accessing comments array
+  };
+
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <form
         onSubmit={handleSubmit}
         style={{
@@ -43,13 +65,13 @@ const UserTweets = () => {
           padding: '20px',
           borderRadius: '8px',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-          backgroundImage: `url(${process.env.PUBLIC_URL + '/bg.jpg'})` 
+          backgroundImage: `url(${process.env.PUBLIC_URL + '/bg.jpg'})`,
         }}
       >
         <div style={{ marginBottom: '15px' }}>
           <label
             htmlFor="userName"
-            style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold',color:'white' }}
+            style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'white' }}
           >
             User Name:
           </label>
@@ -64,7 +86,6 @@ const UserTweets = () => {
               borderRadius: '4px',
               border: '1px solid #ccc',
               fontSize: '16px',
-            
             }}
           />
         </div>
@@ -72,7 +93,7 @@ const UserTweets = () => {
         <div style={{ marginBottom: '15px' }}>
           <label
             htmlFor="numberOfTweets"
-            style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold',color:'white' }}
+            style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'white' }}
           >
             Number of Tweets:
           </label>
@@ -107,62 +128,88 @@ const UserTweets = () => {
           Submit
         </button>
       </form>
-      {resultcomp && (
-        <div className="result-table-container">
-          <h3 style={{ color: 'white', marginBottom: '10px' }}>Fetched Tweets:</h3>
-          <table className="result-table">
-            <thead>
-              <tr>
-                <th>Twitter Link</th>
-                <th>Text</th>
-                <th>Date</th>
-                <th>Likes</th>
-                <th>Comments</th>
-              </tr>
-            </thead>
-            <tbody>
-              {resultcomp.usertweets && 
-                Object.keys(resultcomp.usertweets.twitter_link).map((index) => (
-                  <tr key={index}>
-                    <td>
-                      <a href={resultcomp.usertweets.twitter_link[index]} target="_blank" rel="noopener noreferrer">
-                        {resultcomp.usertweets.twitter_link[index]}
-                      </a>
-                    </td>
-                    <td>{resultcomp.usertweets.text.key(index)}</td>
-                    <td>{resultcomp.usertweets.date.key(index)}</td>
-                    <td>{resultcomp.usertweets.likes.key(index)}</td>
-                    <td>{resultcomp.usertweets.comments.key(index)}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+
+      {/* Render fetched tweets beautifully */}
+      {tweets.length > 0 && (
+        <div style={{ marginTop: '30px' }}>
+          <h3 style={{ color: 'gray', marginBottom: '20px' }}>Fetched Tweets:</h3>
+          {tweets.map((tweet, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: '#001627',
+                padding: '15px',
+                marginBottom: '20px',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                color: 'white',
+              }}
+            >
+              <p><strong>Tweet Text:</strong> {tweet.text}</p>
+              <p><strong>Date:</strong> {tweet.date}</p>
+              <p><strong>Likes:</strong> {tweet.likes}</p>
+              <p><strong>Comments:</strong> {tweet.comments}</p>
+              <a
+                href={tweet.twitterLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#089859',
+                  textDecoration: 'none',
+                }}
+              >
+                View Tweet
+              </a>
+            </div>
+          ))}
         </div>
       )}
 
+      {/* Optional: Raw JSON data and copy functionality */}
       {resultcomp && (
         <div className="raw-data-container" style={{ marginTop: '20px' }}>
-          <h3 style={{ color: 'white', marginBottom: '10px' }}>Raw JSON Data:</h3>
+          <h3 style={{ color: 'gray', marginBottom: '10px' }}>Tweet Data:</h3>
+          <button
+            style={{
+              backgroundColor: '#089859',
+              color: 'black',
+              padding: '10px',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              marginBottom: '10px',
+              marginLeft: 'auto', // Aligns the button to the right
+              display: 'block',
+            }}
+            onClick={() => {
+              const textToCopy = JSON.stringify(JSON.parse(JSON.parse(resultcomp).usertweets), null, 2);
+              navigator.clipboard.writeText(textToCopy);
+            }}
+          >
+            Copy Tweets
+          </button>
           <pre
-            className="raw-data"
+            className="copy-json-data"
             style={{
               textAlign: 'left',
               whiteSpace: 'pre-wrap',
-              backgroundColor: 'skyblue',
+              backgroundColor: 'black',
               padding: '15px',
               borderRadius: '8px',
               border: '1px solid #ccc',
               overflowX: 'auto',
-              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
               fontSize: '14px',
               lineHeight: '1.5',
-              color: '#333',
+              color: 'white',
             }}
           >
             {JSON.stringify(JSON.parse(JSON.parse(resultcomp).usertweets), null, 2)}
           </pre>
         </div>
       )}
+
+      <button onClick={check}>Check Stats</button>
     </div>
   );
 };
