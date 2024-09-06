@@ -1,107 +1,116 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './GenerateReport.css'; // Import the CSS file
 
 const GenerateReport = () => {
     const [userName, setUserName] = useState('');
     const [numberOfTweets, setNumberOfTweets] = useState('');
-    const [reportLink, setReportLink] = useState(null);
     const [fileName, setFileName] = useState('');
 
-  const postData = async () => {
-    const url = 'http://127.0.0.1:8001/api/v1/twitter/generatereport';
-    const data = {
-        "username": userName,
-        "number_of_tweets": Number(numberOfTweets),
-      };
+    const postData = async () => {
+        const url = 'http://127.0.0.1:8001/api/v1/twitter/generatereport';
+        const data = {
+            username: userName,
+            number_of_tweets: Number(numberOfTweets),
+        };
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST', // Specify the method
-        headers: {
-          'Content-Type': 'application/json', // Ensure the content type is JSON
-        },
-        body: JSON.stringify(data), // Convert data to JSON
-      });
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
-      const result = await response.json(); // Parse the response as JSON
-      const filename = result.user_reports; // Assume the API returns the file name
+            const result = await response.json();
+            const filename = result.user_reports;
 
-      console.log(filename);
-      setFileName(fileName);
-      console(fileName);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+            console.log("Filename from API response:", filename);
+            setFileName(filename);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        await postData();
+
+        // Wait until fileName is updated
+        setTimeout(() => {
+            if (fileName) {
+                const pdfUrl = `/pdf_files/${fileName}`; // Adjust path if necessary
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.log("FileName is not set or is empty");
+            }
+        }, 100); // Delay to ensure state update
+    };
+
+    const Stats = () => {
+        console.log("Root Directory:", process.env.PUBLIC_URL);
+        console.log("fileName:", fileName);
+    };
+
+    useEffect(() => {
+        console.log("fileName updated:", fileName);
+    }, [fileName]);
+
+    return (
+        <div className="container">
+            <div className="form-group">
+                <label htmlFor="userName" className="label">User Name:</label>
+                <input
+                    type="text"
+                    id="userName"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="input"
+                />
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="numberOfTweets" className="label">Number of Tweets:</label>
+                <input
+                    type="number"
+                    id="numberOfTweets"
+                    value={numberOfTweets}
+                    onChange={(e) => setNumberOfTweets(e.target.value)}
+                    className="input"
+                />
+            </div>
+
+            <form onSubmit={handleSubmit} className="form">
 
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    await postData();
-    const pdfUrl = "../../"+fileName;
-    const link = document.createElement("a");
-    link.href = pdfUrl;
-    link.download = fileName; // specify the filename
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+                <center>
+                <h3 className="title">Panchanama Formatter</h3>
+                  <button type="submit" className="button">Generate Report</button>
 
-  return (
-    <div>
-                <div style={{ marginBottom: '15px' }}>
-          <label
-            htmlFor="userName"
-            style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold',color:'white' }}
-          >
-            User Name:
-          </label>
-          <input
-            type="text"
-            id="userName"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              fontSize: '16px',
-            
-            }}
-          />
+                </center>
+            </form>
+            <center>
+              <br></br>
+            <button onClick={Stats} className="button">Check Stats</button>
+            </center>
+
+            {fileName && (
+                <div className="download-link">
+                    <a href={`/pdf_files/${fileName}`} download>
+                    <center>
+                      <br></br>
+                        <strong>Download Report</strong>
+                    </center>
+                    </a>
+                </div>
+            )}
         </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label
-            htmlFor="numberOfTweets"
-            style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold',color:'white' }}
-          >
-            Number of Tweets:
-          </label>
-          <input
-            type="number"
-            id="numberOfTweets"
-            value={numberOfTweets}
-            onChange={(e) => setNumberOfTweets(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              fontSize: '16px',
-            }}
-          />
-        </div>
-      <form onSubmit={handleSubmit}>
-        <h3 style={{color:'wheat'}}>
-            Click on below button to download PDF
-            file
-        </h3>
-        <button type="submit">Generate Report</button>
-      </form>
-
-    </div>
-  );
+    );
 };
 
 export default GenerateReport;

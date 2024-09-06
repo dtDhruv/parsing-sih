@@ -62,7 +62,7 @@ def create_twitter_user_pdf(data, tweet_data, num_tweets):
         tweet_comments = tweet_data['comments']
 
         # Create PDF document
-        pdf = SimpleDocTemplate(f"{name}_report.pdf", pagesize=A4)
+        pdf = SimpleDocTemplate(f"src/web/public/pdf_files/{name}_report.pdf", pagesize=A4)
         story = []
         styles = getSampleStyleSheet()
 
@@ -117,4 +117,5 @@ def create_twitter_user_pdf(data, tweet_data, num_tweets):
         return f"{name}_report.pdf"
     
     except Exception as e:
+        log.exception(e)
         return "Fail"
